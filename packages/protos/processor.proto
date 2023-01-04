@@ -307,6 +307,7 @@ message Data {
     int64 timestampMicros = 5;
   }
 
+  bytes raw = 1 [deprecated = true]; // can be removed anytime
   oneof value {
     EthLog eth_log = 2;
     EthBlock eth_block = 3;
@@ -423,7 +424,7 @@ message LogResult {
 message EventTrackingResult {
   RecordMetaData metadata = 1;
   string distinct_entity_id = 2;
-  google.protobuf.Struct attributes = 4;
+  google.protobuf.Struct attributes = 6;
   RuntimeInfo runtime_info = 5;
 }
 
