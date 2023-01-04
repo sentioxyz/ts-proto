@@ -91,6 +91,7 @@ export type Options = {
   useSnakeTypeName: boolean;
   outputExtensions: boolean;
   outputIndex: boolean;
+  removeDeprecated: boolean;
   M: { [from: string]: string };
   rpcBeforeRequest: boolean;
   rpcAfterResponse: boolean;
@@ -155,6 +156,7 @@ export function defaultOptions(): Options {
     useSnakeTypeName: true,
     outputExtensions: false,
     outputIndex: false,
+    removeDeprecated: false,
     M: {},
     rpcBeforeRequest: false,
     rpcAfterResponse: false,
@@ -184,6 +186,8 @@ export function optionsFromParameter(parameter: string | undefined): Options {
     }
     Object.assign(options, parsed);
   }
+
+  console.warn("remove deprecated: ",  options.removeDeprecated);
 
   // onlyTypes=true implies outputJsonMethods=false,outputEncodeMethods=false,outputClientImpl=false,nestJs=false
   if (options.onlyTypes) {

@@ -41,6 +41,9 @@ export function generateService(
 ): Code {
   const { options } = ctx;
   const chunks: Code[] = [];
+  if (serviceDesc.options?.deprecated && ctx.options.context) {
+    return code``;
+  }
 
   maybeAddComment(options, sourceInfo, chunks, serviceDesc.options?.deprecated);
   const maybeTypeVar = options.context ? `<${contextTypeVar}>` : "";
@@ -49,6 +52,10 @@ export function generateService(
   serviceDesc.method.forEach((methodDesc, index) => {
     assertInstanceOf(methodDesc, FormattedMethodDescriptor);
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     maybeAddComment(options, info, chunks, methodDesc.options?.deprecated);
 
     const params: Code[] = [];

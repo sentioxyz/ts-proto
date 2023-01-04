@@ -1,6 +1,6 @@
 {
-  "name": "ts-proto",
-  "version": "1.172.0",
+  "name": "@sentio/ts-proto",
+  "version": "1.172.0-patch.1",
   "description": "",
   "main": "build/plugin.js",
   "repository": "github:stephenh/ts-proto",

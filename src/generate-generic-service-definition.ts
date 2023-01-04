@@ -22,6 +22,9 @@ export function generateGenericServiceDefinition(
   serviceDesc: ServiceDescriptorProto,
 ) {
   const chunks: Code[] = [];
+  if (serviceDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return code``;
+  }
 
   maybeAddComment(ctx.options, sourceInfo, chunks, serviceDesc.options?.deprecated);
 
@@ -45,6 +48,10 @@ export function generateGenericServiceDefinition(
 
   for (const [index, methodDesc] of serviceDesc.method.entries()) {
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return code``;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     chunks.push(code`

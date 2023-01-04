@@ -44,6 +44,10 @@ function generateServerStub(ctx: Context, sourceInfo: SourceInfo, serviceDesc: S
     const ServerStreamingMethodResult = ctx.utils.NiceGrpcServerStreamingMethodResult;
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     if (methodDesc.clientStreaming) {
@@ -107,6 +111,10 @@ function generateClientStub(ctx: Context, sourceInfo: SourceInfo, serviceDesc: S
     const outputType = messageToTypeName(ctx, methodDesc.outputType, { keepValueType: true });
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     if (methodDesc.clientStreaming) {

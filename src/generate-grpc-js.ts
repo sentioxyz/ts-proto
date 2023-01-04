@@ -53,6 +53,9 @@ function generateServiceDefinition(
   serviceDesc: ServiceDescriptorProto,
 ) {
   const chunks: Code[] = [];
+  if (serviceDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return code``;
+  }
 
   maybeAddComment(ctx.options, sourceInfo, chunks, serviceDesc.options?.deprecated);
 
@@ -74,6 +77,10 @@ function generateServiceDefinition(
     const outputType = messageToTypeName(ctx, methodDesc.outputType);
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     const inputEncoder = generateEncoder(ctx, methodDesc.inputType);
@@ -114,6 +121,10 @@ function generateServerStub(ctx: Context, sourceInfo: SourceInfo, serviceDesc: S
     const outputType = messageToTypeName(ctx, methodDesc.outputType);
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     const callType = methodDesc.clientStreaming
@@ -146,6 +157,10 @@ function generateClientStub(ctx: Context, sourceInfo: SourceInfo, serviceDesc: S
     const outputType = messageToTypeName(ctx, methodDesc.outputType);
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
+
     maybeAddComment(ctx.options, info, chunks, methodDesc.options?.deprecated);
 
     const responseCallback = code`(error: ${ServiceError} | null, response: ${outputType}) => void`;

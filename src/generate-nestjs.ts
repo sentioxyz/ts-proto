@@ -25,6 +25,9 @@ export function generateNestjsServiceController(
   const chunks: Code[] = [];
 
   const Metadata = imp("Metadata@@grpc/grpc-js");
+  if (serviceDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return code``;
+  }
 
   maybeAddComment(options, sourceInfo, chunks, serviceDesc.options?.deprecated);
   const t = options.context ? `<${contextTypeVar}>` : "";
@@ -35,6 +38,10 @@ export function generateNestjsServiceController(
   serviceDesc.method.forEach((methodDesc, index) => {
     assertInstanceOf(methodDesc, FormattedMethodDescriptor);
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (serviceDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return code``;
+    }
+
     maybeAddComment(options, info, chunks, serviceDesc.options?.deprecated);
 
     const params: Code[] = [];
@@ -125,6 +132,10 @@ export function generateNestjsServiceClient(
     const returns = responseObservable(ctx, methodDesc);
 
     const info = sourceInfo.lookup(Fields.service.method, index);
+    if (methodDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     maybeAddComment(options, info, chunks, methodDesc.options?.deprecated);
     chunks.push(code`
       ${methodDesc.formattedName}(

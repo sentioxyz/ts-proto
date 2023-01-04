@@ -144,6 +144,9 @@ export function generateFile(ctx: Context, fileDesc: FileDescriptorProto): [stri
   // Syntax, unlike most fields, is not repeated and thus does not use an index
   const sourceInfo = SourceInfo.fromDescriptor(fileDesc);
   const headerComment = sourceInfo.lookup(Fields.file.syntax, undefined);
+  if (fileDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return [moduleName, code``];
+  }
   maybeAddComment(options, headerComment, chunks, fileDesc.options?.deprecated);
 
   // Apply formatting to methods here, so they propagate globally
@@ -199,6 +202,9 @@ export function generateFile(ctx: Context, fileDesc: FileDescriptorProto): [stri
       fileDesc,
       sourceInfo,
       (fullName, message, _sInfo, fullProtoTypeName) => {
+        if (message.options?.deprecated && ctx.options.removeDeprecated) {
+          return;
+        }
         const fullTypeName = maybePrefixPackage(fileDesc, fullProtoTypeName);
         const outputWrapAndUnwrap = isWrapperType(fullTypeName);
 
@@ -956,6 +962,10 @@ function generateInterfaceDeclaration(
   const { options, currentFile } = ctx;
   const chunks: Code[] = [];
 
+  if (messageDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return code``;
+  }
+
   maybeAddComment(options, sourceInfo, chunks, messageDesc.options?.deprecated);
   // interface name should be defined to avoid import collisions
   chunks.push(code`export interface ${def(fullName)} {`);
@@ -978,6 +988,10 @@ function generateInterfaceDeclaration(
     }
 
     const info = sourceInfo.lookup(Fields.message.field, index);
+    if (fieldDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     maybeAddComment(options, info, chunks, fieldDesc.options?.deprecated);
     const fieldKey = safeAccessor(getFieldName(fieldDesc, options));
     const isOptional = isOptionalProperty(fieldDesc, messageDesc.options, options, currentFile.isProto3Syntax);
@@ -1050,6 +1064,9 @@ function generateBaseInstanceFactory(
   const processedOneofs = new Set<number>();
 
   for (const field of messageDesc.field) {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      continue;
+    }
     if (isWithinOneOfThatShouldBeUnion(ctx.options, field)) {
       const { oneofIndex } = field;
       if (!processedOneofs.has(oneofIndex)) {
@@ -1197,6 +1214,10 @@ function generateDecode(ctx: Context, fullName: string, messageDesc: DescriptorP
 
   // add a case for each incoming field
   messageDesc.field.forEach((field) => {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const fieldName = getFieldName(field, options);
     const messageProperty = getPropertyAccessor("message", fieldName);
     chunks.push(code`case ${field.number}:`);
@@ -1447,6 +1468,10 @@ function generateEncode(ctx: Context, fullName: string, messageDesc: DescriptorP
 
   // then add a case for each field
   messageDesc.field.forEach((field) => {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const fieldName = getFieldName(field, options);
     const messageProperty = getPropertyAccessor("message", fieldName);
 
@@ -1922,6 +1947,10 @@ function generateFromJson(ctx: Context, fullName: string, fullTypeName: string, 
 
   // add a check for each incoming field
   messageDesc.field.forEach((field) => {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const fieldName = getFieldName(field, options);
     const fieldKey = safeAccessor(fieldName);
     const jsonName = getFieldJsonName(field, options);
@@ -2170,6 +2199,10 @@ function generateToJson(
 
   // then add a case for each field
   messageDesc.field.forEach((field) => {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const fieldName = getFieldName(field, options);
     const jsonName = getFieldJsonName(field, options);
     const jsonProperty = getPropertyAccessor("obj", jsonName);
@@ -2352,6 +2385,10 @@ function generateFromPartial(ctx: Context, fullName: string, messageDesc: Descri
 
   // add a check for each incoming field
   messageDesc.field.forEach((field) => {
+    if (field.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const fieldName = getFieldName(field, options);
     const messageProperty = getPropertyAccessor("message", fieldName);
     const objectProperty = getPropertyAccessor("object", fieldName);

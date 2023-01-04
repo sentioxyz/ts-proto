@@ -18,6 +18,10 @@ export function generateEnum(
   const chunks: Code[] = [];
   let unrecognizedEnum: UnrecognizedEnum = { present: false };
 
+  if (enumDesc.options?.deprecated && ctx.options.removeDeprecated) {
+    return code``;
+  }
+
   maybeAddComment(options, sourceInfo, chunks, enumDesc.options?.deprecated);
 
   if (options.enumsAsLiterals) {
@@ -30,6 +34,10 @@ export function generateEnum(
 
   enumDesc.value.forEach((valueDesc, index) => {
     const info = sourceInfo.lookup(Fields.enum.value, index);
+    if (valueDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      return;
+    }
+
     const valueName = getValueName(ctx, fullName, valueDesc);
     const memberName = getMemberName(ctx, enumDesc, valueDesc);
     if (valueDesc.number === options.unrecognizedEnumValue) {
