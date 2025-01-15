@@ -116,6 +116,9 @@ export function generateEnumFromJson(
   for (const valueDesc of enumDesc.value) {
     const memberName = getMemberName(ctx, enumDesc, valueDesc);
     const valueName = getValueName(ctx, fullName, valueDesc);
+    if (valueDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue
+    }
     chunks.push(code`
       case ${valueDesc.number}:
       case "${valueName}":
@@ -170,6 +173,10 @@ export function generateEnumToJson(
   chunks.push(code`switch (object) {`);
 
   for (const valueDesc of enumDesc.value) {
+    if (valueDesc.options?.deprecated && ctx.options.removeDeprecated) {
+      continue
+    }
+
     if (ctx.options.useNumericEnumForJson) {
       const memberName = getMemberName(ctx, enumDesc, valueDesc);
       chunks.push(code`case ${fullName}.${memberName}: return ${valueDesc.number};`);
